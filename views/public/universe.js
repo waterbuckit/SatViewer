@@ -1,4 +1,4 @@
-disableFriendlyErrors = true;
+p5.disableFriendlyErrors = true;
 var satelliteRecords;
 var satellites = [];
 var img;
@@ -69,7 +69,7 @@ function drawSatellites(){
         } 
         //point(satelliteDatum.position.x, satelliteDatum.position.z, satelliteDatum.position.y); 
         translate(satelliteDatum.position.x, satelliteDatum.position.z, satelliteDatum.position.y); 
-        sphere(1);
+        sphere(1, 11, 11);
         pop();
         //push();
         //sphere(10);
