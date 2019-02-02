@@ -16,11 +16,17 @@ function setup() {
 function draw() {
     if(started){
         background(0);
-        directionalLight(250, 250, 1000, width/2, height/2, 0.25);
+        //directionalLight(250, 250, 250, -dirX, -dirY, 0.25);
         texture(img)
         sphere(100);
+        
+        drawSatellites();
+
         orbitControl();
     }
+}
+
+function drawSatellites(){
 }
 
 function start(){

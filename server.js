@@ -1,3 +1,4 @@
+var satellite = require("satellite.js");
 var bodyParser = require('body-parser');
 var express = require('express');
 var parse = require('csv-parse/lib/sync');
@@ -6,22 +7,26 @@ var fs = require('fs');
 // Get input file
 var input;
 try{
-    input = fs.readFileSync('satdata.csv', 'utf8');
+    input = fs.readFileSync('TLE.json', 'utf8');
 }catch(e){
-    console.log("Could not find satdata.csv");
+    console.log("Could not find TLE.json");
     process.exit(1);
 }
 
 // JSON objects of satellite data 
-var records = parse(input, {
-    columns: true,
-    skip_empty_lines: true
-});
+
+var satData = JSON.parse(input);
+
+var satRecs = [];
+
+for(satDatum of satData){
+    satRecs.push({OBJECT_NAME : satDatum.OBJECT_NAME, SAT_REC : satellite.twoline2satrec(satDatum.TLE_LINE1, satDatum.TLE_LINE2)});
+}
 
 var app = express();
 var server = app.listen(25565);
 app.use(express.static('views/public'));
 
 app.get("/getSatellites", function(req, res){
-    res.send(records);
+    res.send(satRecs);
 });

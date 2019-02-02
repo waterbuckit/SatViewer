@@ -19,6 +19,7 @@
   "homepage": "https://github.com/waterbuckit/SatViewer#readme",
   "dependencies": {
     "csv-parse": "^4.3.1",
-    "express": "^4.16.4"
+    "express": "^4.16.4",
+    "satellite.js": "^3.0.0"
   }
 }
