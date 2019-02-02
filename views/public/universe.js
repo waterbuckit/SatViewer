@@ -1,4 +1,5 @@
 var satellites;
+var img;
 var started = false;
 
 function setup() {
@@ -6,6 +7,7 @@ function setup() {
         satellites = data;
         console.log(data);
         createCanvas(window.innerWidth, window.innerHeight, WEBGL);
+        img = loadImage('earth_day.jpg');
         noLoop();
         start();
     });
@@ -13,8 +15,9 @@ function setup() {
 
 function draw() {
     if(started){
-        background(200);
-        sphere(40);
+        background(0);
+        texture(img)
+        sphere(100);
         orbitControl();
     }
 }
