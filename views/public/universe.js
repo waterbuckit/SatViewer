@@ -27,6 +27,11 @@ function draw() {
 }
 
 function drawSatellites(){
+    for(satelliteData of satellites){
+        console.log(satelliteData);
+        var positionAndVelocity = satellite.propagate(satelliteData.SAT_REC, new Date());
+        console.log(positionAndVelocity.position);
+    }
 }
 
 function start(){
