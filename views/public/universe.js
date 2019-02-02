@@ -7,7 +7,6 @@ var started = false;
 function setup() {
     $.get("getSatellites", function(data, status){
         satelliteRecords = data;
-        console.log(data);
         createCanvas(windowWidth, windowHeight, WEBGL);
         img = loadImage('earth_day.jpg');
 
@@ -39,9 +38,23 @@ function setup() {
 function draw() {
     if(started){
         //mResetMatrix();
+        angleMode(degrees);
         background(0);
+        
         texture(img)
-        sphere(100, 10, 10);
+        push();
+        rotateZ(-50.5);
+        sphere(100, 9, 9);
+        pop();
+        
+        pointLight(255,255,255, width/2, 100, 200);
+        pointLight(255,255,255, width/2, 200, 200);
+        pointLight(255,255,255, width/2, 200, 200);
+        pointLight(255,255,255, width/2, 200, 200);
+        pointLight(255,255,255, width/2, 200, 200);
+        pointLight(255,255,255, width/2, 200, 200);
+        pointLight(255,255,255, width/2, 200, 200);
+        pointLight(255,255,255, width/2, 200, 200);
         
         drawSatellites();
 
