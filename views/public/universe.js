@@ -2,15 +2,15 @@ p5.disableFriendlyErrors = true;
 var satelliteRecords;
 var satellites = [];
 var img;
+var pg;
 var started = false;
 
 function setup() {
     $.get("getSatellites", function(data, status){
         satelliteRecords = data;
         createCanvas(windowWidth, windowHeight, WEBGL);
+
         img = loadImage('earth_day.jpg');
-
-
         for(satelliteDatum of satelliteRecords){
             var positionAndVelocity = satellite.
                 propagate(satelliteDatum.SAT_REC, new Date());
@@ -20,16 +20,13 @@ function setup() {
                 positionAndVelocity.position.y /= 63;
                 positionAndVelocity.position.z /= 63;
                 satellites.push({
-                    OBJECT_NAME : satelliteDatum.OBJECT_NAME, 
+                    INTLDES : satelliteDatum.INTLDES, OBJECT_NAME : satelliteDatum.OBJECT_NAME, 
                     OBJECT_TYPE : satelliteDatum.OBJECT_TYPE,
                     position : positionAndVelocity.position
                 });
             }
-            
         }
-       // for(satelliteDatum of satellites){
-       //     console.log(satelliteDatum.position);
-       // }
+
         noLoop();
         start();
     });
@@ -37,7 +34,7 @@ function setup() {
 
 function draw() {
     if(started){
-        //mResetMatrix();
+
         angleMode(degrees);
         background(0);
         
@@ -59,24 +56,25 @@ function draw() {
         drawSatellites();
 
         orbitControl();
+        
     }
+}
+
+function mousePressed(){
+
 }
 
 function windowResized(){
     resizeCanvas(windowWidth, windowHeight);
 }
 
+
 function drawSatellites(){
+
+    
+
     for(satelliteDatum of satellites){
         push();
-        //switch(satelliteDatum.OBJECT_TYPE){
-        //    case "ROCKET BODY" :
-        //        stroke(255, 107, 33);
-        //        break;
-        //    case "PAYLOAD":
-        //        stroke(130, 177, 255);
-        //} 
-
         switch(satelliteDatum.OBJECT_TYPE){
             case "ROCKET BODY" :
                 fill(255, 107, 33);
@@ -84,13 +82,9 @@ function drawSatellites(){
             case "PAYLOAD":
                 fill(130, 177, 255);
         } 
-        //point(satelliteDatum.position.x, satelliteDatum.position.z, satelliteDatum.position.y); 
         translate(satelliteDatum.position.x, satelliteDatum.position.z, satelliteDatum.position.y); 
         sphere(1, 11, 11);
         pop();
-        //push();
-        //sphere(10);
-        //pop();
     }
 }
 
