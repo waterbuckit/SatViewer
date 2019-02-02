@@ -35,6 +35,8 @@ function setup() {
 function draw() {
     if(started){
 
+	console.log(this._renderer._curCamera.eyeX);
+
         angleMode(degrees);
         background(0);
         
