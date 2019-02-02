@@ -18,7 +18,7 @@ function draw() {
         background(0);
         //directionalLight(250, 250, 250, -dirX, -dirY, 0.25);
         texture(img)
-        sphere(100);
+        sphere(100, 200, 200);
         
         drawSatellites();
 
