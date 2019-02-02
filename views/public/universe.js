@@ -4,7 +4,7 @@ var satellites = [];
 var img;
 var pg;
 var started = false;
-
+var pMatrix = mat4.create(), camMatrix = mat4.create();
 function setup() {
     $.get("getSatellites", function(data, status){
         satelliteRecords = data;
@@ -34,9 +34,6 @@ function setup() {
 
 function draw() {
     if(started){
-
-	console.log(this._renderer._curCamera.eyeX);
-
         angleMode(degrees);
         background(0);
         
@@ -73,7 +70,7 @@ function windowResized(){
 
 function drawSatellites(){
 
-    
+    var ray = getRayFromCamera(mouseX, mouseY, this._renderer._curCamera)
 
     for(satelliteDatum of satellites){
         push();
@@ -88,6 +85,51 @@ function drawSatellites(){
         sphere(1, 11, 11);
         pop();
     }
+}
+
+function unProject(mx, my) {
+  var glScreenX = (mx / width * 2) - 1.0;
+  var glScreenY = 1.0 - (my / height * 2);
+  var screenVec = [glScreenX, glScreenY, -0.01, 1.0]; //gl screen coords
+ 
+  var comboPMat = mat4.create();
+  mat4.mul(comboPMat, pMatrix, camMatrix);
+  var invMat = mat4.create();
+  mat4.invert(invMat, comboPMat);
+  var worldVec = vec4.create();
+  vec4.transformMat4(worldVec, screenVec, invMat);
+ 
+  return createVector(worldVec[0] / worldVec[3], worldVec[1] / worldVec[3], worldVec[2] / worldVec[3]);
+}
+
+
+function getRayFromCamera(mouseX, mouseY, camera){
+    var rayOrigin = createVector(camera.eyeX, camera.eyeY);
+    var ptThru = unProject(mouseX, mouseY);
+
+    var rayDir = ptThru.copy().sub(rayOrigin); //rayDir = ptThru - rayOrigin
+    rayDir.normalize();
+
+    //var toCenterVec = createVector();
+    //toCenterVec = rayOrigin.copy().mult(-1); //toCenter is just -camera pos because center is at [0,0,0]
+    //var dParallel = createVector();
+    //dParallel = rayDir.dot(toCenterVec);
+    //
+    //var longDir = createVector();
+    //longDir = rayDir.mult(dParallel); //longDir = rayDir * distParallel
+    //ptThru = rayOrigin.copy().add(longDir); //ptThru is now on the plane going through the center of sphere
+    //var dPerp = mag(ptThru);
+    //
+    //var dSubSurf = Math.sqrt(100*100 - dPerp*dPerp);
+    //var dSurf = dParallel - dSubSurf;
+    //
+    //var ptSurf = createVector();
+    //ptSurf = rayDir.copy().mult(dSurf);
+    //ptSurf = ptSurf.copy().add(rayOrigin);
+  
+ // console.log('earthscreenpt: ' + (performance.now() - start) + ' ms');
+  
+  return rayDir;
 }
 
 function start(){
