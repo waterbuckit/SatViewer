@@ -1,9 +1,25 @@
+var satellites;
+var started = false;
+
 function setup() {
-  createCanvas(window.innerWidth, window.innerHeight, WEBGL);
+    $.get("getSatellites", function(data, status){
+        satellites = data;
+        console.log(data);
+        createCanvas(window.innerWidth, window.innerHeight, WEBGL);
+        noLoop();
+        start();
+    });
 }
 
 function draw() {
-  background(200);
-  sphere(40);
-  orbitControl();
+    if(started){
+        background(200);
+        sphere(40);
+        orbitControl();
+    }
+}
+
+function start(){
+   started = true;
+   loop();
 }
