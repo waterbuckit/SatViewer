@@ -3,7 +3,7 @@ function setup() {
 }
 
 function draw() {
-  background(200);
-  sphere(40);
+  background(0);
+  sphere(100);
   orbitControl();
 }
