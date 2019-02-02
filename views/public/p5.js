@@ -75289,9 +75289,9 @@ p5.prototype.orbitControl = function(sensitivityX, sensitivityY) {
   if (this._mouseWheelDeltaY !== this._pmouseWheelDeltaY) {
     // zoom according to direction of mouseWheelDeltaY rather than value
     if (this._mouseWheelDeltaY > 0) {
-      this._renderer._curCamera._orbit(0, 0, 0.5 * scaleFactor);
+      this._renderer._curCamera._orbit(0, 0, 0.05 * scaleFactor);
     } else {
-      this._renderer._curCamera._orbit(0, 0, -0.5 * scaleFactor);
+      this._renderer._curCamera._orbit(0, 0, -0.05 * scaleFactor);
     }
   }
 
