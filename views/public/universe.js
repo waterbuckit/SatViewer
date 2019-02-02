@@ -8,7 +8,7 @@ function setup() {
     $.get("getSatellites", function(data, status){
         satelliteRecords = data;
         console.log(data);
-        createCanvas(window.innerWidth, window.innerHeight, WEBGL);
+        createCanvas(windowWidth, windowHeight, WEBGL);
         img = loadImage('earth_day.jpg');
 
 
@@ -47,6 +47,10 @@ function draw() {
 
         orbitControl();
     }
+}
+
+function windowResized(){
+    resizeCanvas(windowWidth, windowHeight);
 }
 
 function drawSatellites(){
