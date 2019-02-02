@@ -77934,8 +77934,8 @@ p5.Camera.prototype._orbit = function(dTheta, dPhi, dRadius) {
   camRadius += dRadius;
 
   // prevent zooming through the center:
-  if (camRadius < 0) {
-    camRadius = 0.1;
+  if (camRadius < 200) {
+    camRadius = 200;
   }
 
   // prevent rotation over the zenith / under bottom
