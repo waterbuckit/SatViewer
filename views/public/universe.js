@@ -151,13 +151,13 @@ function getObject(mx, my) {
 	// 	pix[index + 3]);
 	// return cor;
 	//return pix[index]; // Only returning the red channel as the object index.
-    console.log(pg.pixels[0] + " " + pg.pixels[1] + " " + pg.pixels[2]);
+    console.log(pg.pixels[index] + " " + pg.pixels[index+1] + " " + pg.pixels[index +2]);
     //var pixel = pg.get(
 
 	return {
-        red : pg.pixels[0],
-	 	green :pg.pixels[1],
-        blue : pg.pixels[2]
+        red : pg.pixels[index],
+	 	green :pg.pixels[index + 1],
+        blue : pg.pixels[index + 2]
     }
 	// 	pix[index + 2],
 	// 	pix[index + 3]);
