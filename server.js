@@ -21,7 +21,12 @@ var satRecs = [];
 
 for(satDatum of satData){
     if(satDatum.OBJECT_TYPE != "DEBRIS" && satDatum.INTLDES){
-        satRecs.push({OBJECT_NAME : satDatum.OBJECT_NAME, INTLDES : satDatum.INTLDES, OBJECT_TYPE : satDatum.OBJECT_TYPE, SAT_REC : satellite.twoline2satrec(satDatum.TLE_LINE1, satDatum.TLE_LINE2)});
+        satRecs.push({
+            OBJECT_NAME : satDatum.OBJECT_NAME, 
+            INTLDES : satDatum.INTLDES, 
+            OBJECT_TYPE : satDatum.OBJECT_TYPE, 
+            SAT_REC : satellite.twoline2satrec(satDatum.TLE_LINE1, satDatum.TLE_LINE2)
+        });
     }
 }
 console.log("Finished startup");

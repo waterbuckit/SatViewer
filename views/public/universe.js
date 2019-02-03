@@ -5,6 +5,7 @@ var img;
 var pg;
 var started = false;
 var pMatrix = mat4.create(), camMatrix = mat4.create();
+
 function setup() {
     $.get("getSatellites", function(data, status){
         satelliteRecords = data;
@@ -22,6 +23,7 @@ function setup() {
                 satellites.push({
                     INTLDES : satelliteDatum.INTLDES, OBJECT_NAME : satelliteDatum.OBJECT_NAME, 
                     OBJECT_TYPE : satelliteDatum.OBJECT_TYPE,
+                    SAT_REC : satelliteDatum.SAT_REC,
                     position : positionAndVelocity.position
                 });
             }
@@ -69,10 +71,14 @@ function windowResized(){
 
 function drawSatellites(){
 
-    var cameraPos = createVector(this._renderer._curCamera.eyeX, this._renderer._curCamera.eyeY, this._renderer._curCamera.eyeZ);
-    var ray = getRayFromCamera(mouseX, mouseY, cameraPos)
+   // var cameraPos = createVector(
+   //     this._renderer._curCamera.eyeX, 
+   //     this._renderer._curCamera.eyeY, 
+   //     this._renderer._curCamera.eyeZ);
+   // var ray = getRayFromCamera(mouseX, mouseY, cameraPos)
 
     for(satelliteDatum of satellites){
+        noStroke();
         push();
         switch(satelliteDatum.OBJECT_TYPE){
             case "ROCKET BODY" :
@@ -82,9 +88,8 @@ function drawSatellites(){
                 fill(130, 177, 255);
         } 
         //intersects(satelliteDatum, ray, cameraPos);
-        if(intersects(satelliteDatum,ray, cameraPos) != null){
-            console.log("intersects");
-        }
+        //console.log(intersects(satelliteDatum,ray, cameraPos))
+
         //    console.log("no intersection!");
         //}
         
@@ -95,22 +100,23 @@ function drawSatellites(){
 }
 
 function intersects(satelliteDatum, ray, camera){
-     var L = createVector(satelliteDatum.position.x,
-         satelliteDatum.position.z,
-         satelliteDatum.position.y).sub(camera);
-     var tc = L.dot(ray);
-     if(tc < 0){
-        return null;
-     }
-     var d2 = (tc*tc) -(L.dot(L));
-     if(d2 > 1){
-        return null;
-     }
-     var t1c = Math.sqrt(1 - (d2));
-     //console.log("t1c: " +t1c);
-     var t1 = tc - t1c;
-    
-     return camera.copy().add(ray).mult(t1);
+    // - r0: ray origin
+    // - rd: normalized ray direction
+    // - s0: sphere center
+    // - sr: sphere radius
+    // - Returns distance from r0 to first intersecion with sphere,
+    //   or -1.0 if no intersection.
+    var a = ray.dot(ray);
+    var s0_r0 = camera.sub(createVector(
+        satelliteDatum.position.x, 
+        satelliteDatum.position.z, 
+        satelliteDatum.position.y));
+    var b = 2.0 * ray.dot(s0_r0);
+    var c = s0_r0.dot(s0_r0) - 1;
+    if (b*b - 4.0*a*c < 0.0) {
+        return -1.0;
+    }
+    return (-b - Math.sqrt((b*b) - 4.0*a*c))/(2.0*a);
 }
 
 function unProject(mx, my) {
@@ -135,8 +141,10 @@ function unProject(mx, my) {
 function getRayFromCamera(mouseX, mouseY, camera){
     var ptThru = unProject(mouseX, mouseY);
 
+    console.log(ptThru);
     var rayDir = ptThru.sub(camera); //rayDir = ptThru - rayOrigin
     rayDir.normalize();
+    //console.log(rayDir);
 
     //var toCenterVec = createVector();
     //toCenterVec = rayOrigin.copy().mult(-1); //toCenter is just -camera pos because center is at [0,0,0]
