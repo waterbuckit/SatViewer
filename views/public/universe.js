@@ -10,18 +10,22 @@ function setup() {
     $.get("getSatellites", function(data, status){
         satelliteRecords = data;
         createCanvas(windowWidth, windowHeight, WEBGL);
+        
+        pixelDensity(1);
 
-        //pg = createGraphics(windowWidth, windowHeight, WEBGL);
+        pg = createGraphics(windowWidth, windowHeight, WEBGL);
+        
+        pg.pixelDensity(1);
 
         img = loadImage('earth_day.jpg');
-        //var j = 0;
+        var j = 0;
         for(satelliteDatum of satelliteRecords){
             var positionAndVelocity = satellite.
                 propagate(satelliteDatum.SAT_REC, new Date());
             if(positionAndVelocity.position){
-                //if(j == 50){
-                //    break;
-                //}
+                if(j == 50){
+                    break;
+                }
                 positionAndVelocity.position.x /= 63;
                 positionAndVelocity.position.y /= 63;
                 positionAndVelocity.position.z /= 63;
@@ -31,18 +35,16 @@ function setup() {
                     SAT_REC : satelliteDatum.SAT_REC,
                     position : positionAndVelocity.position
                 });
-                //j++;
+                j++;
             }
         }
-        //var i = 0;
-        //for(var g = 0; g < 255 && i < 50; g++){
-        //    for(var r = 0; r < 255 && i < 50; r++){
-        //        satMap.set(satellites[i].INTLDES, {red : r, green : g}); 
-        //        i++;
-        //    }
-        //}
-
-        console.log(satMap);
+        var i = 0;
+        for(var g = 0; g < 255 && i < 50; g++){
+            for(var r = 0; r < 255 && i < 50; r++){
+                satMap.set(satellites[i].INTLDES, {red : r, green : g, blue : 255}); 
+                i++;
+            }
+        }
 
         noLoop();
         start();
@@ -51,7 +53,8 @@ function setup() {
 
 function draw() {
     if(started){
-        //drawBackgroundBuffer(); 
+        drawBackgroundBuffer(); 
+        pg.orbitControl();
 
         angleMode(degrees);
         background(0);
@@ -90,11 +93,6 @@ function drawBackgroundBuffer() {
     for(satelliteDatum of satellites){
         pg.noStroke();
         pg.push();
-        //intersects(satelliteDatum, ray, cameraPos);
-        //console.log(intersects(satelliteDatum,ray, cameraPos))
-
-        //    console.log("no intersection!");
-        //}
         var colour = satMap.get(satelliteDatum.INTLDES);
         pg.fill(colour.red, colour.green, 0);
         pg.translate(satelliteDatum.position.x, satelliteDatum.position.z, satelliteDatum.position.y); 
@@ -105,13 +103,7 @@ function drawBackgroundBuffer() {
 }
 function drawSatellites(){
 
-    //var cameraPos = createVector(
-    //    this._renderer._curCamera.eyeX, 
-    //    this._renderer._curCamera.eyeY, 
-    //    this._renderer._curCamera.eyeZ);
-    //var ray = getRayFromCamera(mouseX, mouseY, cameraPos);
-
-	//var mouseObj = getObject(mouseX, mouseY);    
+	var mouseObj = getObject(mouseX, mouseY);    
     //console.log(mouseObj);
     for(satelliteDatum of satellites){
         noStroke();
@@ -121,13 +113,13 @@ function drawSatellites(){
                 fill(255, 107, 33);
                 break;
             case "PAYLOAD":
-                fill(130, 177, 255);
+                fill(130, 177, 245);
         }
-        //var curColour = satMap.get(satelliteDatum.INTLDES);
-        //if(mouseObj.red == curColour.red && mouseObj.green == curColour.green){
-        //   // console.log(curColour);
-        //   // console.log(mouseObj);
-        //}
+        var curColour = satMap.get(satelliteDatum.INTLDES);
+        if(mouseObj.blue != 255 && mouseObj.red == curColour.red && mouseObj.green == curColour.green){
+           // console.log(curColour);
+           // console.log(mouseObj);
+        }
         
         translate(satelliteDatum.position.x, satelliteDatum.position.z, satelliteDatum.position.y); 
         sphere(1, 11, 11);
@@ -144,15 +136,28 @@ function getObject(mx, my) {
 		return 0;
 	}
 
-	var gl = pg.elt.getContext('webgl');
-	var pix = getPixels();
+	//var gl = pg.elt.getContext('webgl');
+	//var pix = getPixels();
 
-	var index = 4 * ((gl.drawingBufferHeight-my) * gl.drawingBufferWidth + mx);
-    
-    
+	//var index = 4 * ((gl.drawingBufferHeight-my) * gl.drawingBufferWidth + mx);
+   
+    pg.loadPixels();
+	var index = 4 * ((height-my) * width + mx);
+
+	// var cor = color(
+	// 	pix[index + 0],
+	// 	pix[index + 1],
+	// 	pix[index + 2],
+	// 	pix[index + 3]);
+	// return cor;
+	//return pix[index]; // Only returning the red channel as the object index.
+    console.log(pg.pixels[0] + " " + pg.pixels[1] + " " + pg.pixels[2]);
+    //var pixel = pg.get(
+
 	return {
-        red : pix[index + 0],
-	 	green :pix[index + 1]
+        red : pg.pixels[0],
+	 	green :pg.pixels[1],
+        blue : pg.pixels[2]
     }
 	// 	pix[index + 2],
 	// 	pix[index + 3]);
