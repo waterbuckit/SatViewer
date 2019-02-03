@@ -1,9 +1,9 @@
 p5.disableFriendlyErrors = true;
 var satelliteRecords;
 var satellites = [];
-var satMap = new Map();
+//var satMap = new Map();
 var img;
-var pg;
+//var pg;
 var started = false;
 
 function setup() {
@@ -11,21 +11,21 @@ function setup() {
         satelliteRecords = data;
         createCanvas(windowWidth, windowHeight, WEBGL);
         
-        pixelDensity(1);
+        //pixelDensity(1);
 
-        pg = createGraphics(windowWidth, windowHeight, WEBGL);
+        //pg = createGraphics(windowWidth, windowHeight, WEBGL);
         
-        pg.pixelDensity(1);
+        //pg.pixelDensity(1);
 
         img = loadImage('earth_day.jpg');
-        var j = 0;
+        //var j = 0;
         for(satelliteDatum of satelliteRecords){
             var positionAndVelocity = satellite.
                 propagate(satelliteDatum.SAT_REC, new Date());
             if(positionAndVelocity.position){
-                if(j == 50){
-                    break;
-                }
+                //if(j == 50){
+                //    break;
+                //}
                 positionAndVelocity.position.x /= 63;
                 positionAndVelocity.position.y /= 63;
                 positionAndVelocity.position.z /= 63;
@@ -35,17 +35,16 @@ function setup() {
                     SAT_REC : satelliteDatum.SAT_REC,
                     position : positionAndVelocity.position
                 });
-                j++;
+                //j++;
             }
         }
-        var i = 0;
-        for(var g = 0; g < 255 && i < 50; g++){
-            for(var r = 0; r < 255 && i < 50; r++){
-                satMap.set(satellites[i].INTLDES, {red : r, green : g, blue : 255}); 
-                i++;
-            }
-        }
-
+        //var i = 0;
+        //for(var g = 0; g < 255 && i < 50; g++){
+        //    for(var r = 0; r < 255 && i < 50; r++){
+        //        satMap.set(satellites[i].INTLDES, {red : r, green : g, blue : 255}); 
+        //        i++;
+        //    }
+        //}
         noLoop();
         start();
     });
@@ -53,8 +52,8 @@ function setup() {
 
 function draw() {
     if(started){
-        drawBackgroundBuffer(); 
-        pg.orbitControl();
+        //drawBackgroundBuffer(); 
+        //pg.orbitControl();
 
         angleMode(degrees);
         background(0);
@@ -90,8 +89,8 @@ function windowResized(){
 
 function drawBackgroundBuffer() {
     pg.background(0, 0, 255);
+    pg.noStroke();
     for(satelliteDatum of satellites){
-        pg.noStroke();
         pg.push();
         var colour = satMap.get(satelliteDatum.INTLDES);
         pg.fill(colour.red, colour.green, 0);
@@ -103,7 +102,8 @@ function drawBackgroundBuffer() {
 }
 function drawSatellites(){
 
-	var mouseObj = getObject(mouseX, mouseY);    
+	//var mouseObj = getObject(mouseX, mouseY);    
+    
     //console.log(mouseObj);
     for(satelliteDatum of satellites){
         noStroke();
@@ -115,11 +115,11 @@ function drawSatellites(){
             case "PAYLOAD":
                 fill(130, 177, 245);
         }
-        var curColour = satMap.get(satelliteDatum.INTLDES);
-        if(mouseObj.blue != 255 && mouseObj.red == curColour.red && mouseObj.green == curColour.green){
-           // console.log(curColour);
-           // console.log(mouseObj);
-        }
+        //var curColour = satMap.get(satelliteDatum.INTLDES);
+        //if(mouseObj.blue != 255 && mouseObj.red == curColour.red && mouseObj.green == curColour.green){
+        //   // console.log(curColour);
+        //   // console.log(mouseObj);
+        //}
         
         translate(satelliteDatum.position.x, satelliteDatum.position.z, satelliteDatum.position.y); 
         sphere(1, 11, 11);
