@@ -81,10 +81,31 @@ function drawSatellites(){
             case "PAYLOAD":
                 fill(130, 177, 255);
         } 
+        console.log(intersects(satelliteDatum,ray, this._renderer._curCamera));
+        
         translate(satelliteDatum.position.x, satelliteDatum.position.z, satelliteDatum.position.y); 
         sphere(1, 11, 11);
         pop();
     }
+}
+
+function intersects(satelliteDatum, ray, camera){
+     var cameraPos = createVector(camera.eyeX, camera.eyeY);
+     var L = createVector(satelliteDatum.position.x,
+         satelliteDatum.position.z,
+         satelliteDatum.position.y).sub(cameraPos);
+     var tc = L.dot(ray);
+     if(tc < 0){
+        return null;
+     }
+     var d2 = (tc*tc) -(L * L);
+     if(d2 > 1){
+        return null;
+     }
+     var t1c = Math.sqrt(1 - (d2));
+     var t1 = tc - t1c;
+    
+     return cameraPos.add(ray).mult(t1);
 }
 
 function unProject(mx, my) {
@@ -98,8 +119,13 @@ function unProject(mx, my) {
   mat4.invert(invMat, comboPMat);
   var worldVec = vec4.create();
   vec4.transformMat4(worldVec, screenVec, invMat);
- 
-  return createVector(worldVec[0] / worldVec[3], worldVec[1] / worldVec[3], worldVec[2] / worldVec[3]);
+    
+  pMatrix = mat4.create(), camMatrix = mat4.create();
+
+  
+
+  return createVector(worldVec[0] / worldVec[3], worldVec[2] / worldVec[3], worldVec[1] / worldVec[3],);
+  //return createVector(worldVec[0] / worldVec[3], worldVec[1] / worldVec[3], worldVec[2] / worldVec[3]);
 }
 
 
