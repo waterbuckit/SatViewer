@@ -1,22 +1,27 @@
 p5.disableFriendlyErrors = true;
 var satelliteRecords;
 var satellites = [];
+var satMap = new Map();
 var img;
 var pg;
 var started = false;
-var pMatrix = mat4.create(), camMatrix = mat4.create();
 
 function setup() {
     $.get("getSatellites", function(data, status){
         satelliteRecords = data;
         createCanvas(windowWidth, windowHeight, WEBGL);
 
+        //pg = createGraphics(windowWidth, windowHeight, WEBGL);
+
         img = loadImage('earth_day.jpg');
+        //var j = 0;
         for(satelliteDatum of satelliteRecords){
             var positionAndVelocity = satellite.
                 propagate(satelliteDatum.SAT_REC, new Date());
             if(positionAndVelocity.position){
-
+                //if(j == 50){
+                //    break;
+                //}
                 positionAndVelocity.position.x /= 63;
                 positionAndVelocity.position.y /= 63;
                 positionAndVelocity.position.z /= 63;
@@ -26,8 +31,18 @@ function setup() {
                     SAT_REC : satelliteDatum.SAT_REC,
                     position : positionAndVelocity.position
                 });
+                //j++;
             }
         }
+        //var i = 0;
+        //for(var g = 0; g < 255 && i < 50; g++){
+        //    for(var r = 0; r < 255 && i < 50; r++){
+        //        satMap.set(satellites[i].INTLDES, {red : r, green : g}); 
+        //        i++;
+        //    }
+        //}
+
+        console.log(satMap);
 
         noLoop();
         start();
@@ -36,6 +51,8 @@ function setup() {
 
 function draw() {
     if(started){
+        //drawBackgroundBuffer(); 
+
         angleMode(degrees);
         background(0);
         
@@ -57,7 +74,6 @@ function draw() {
         drawSatellites();
 
         orbitControl();
-        
     }
 }
 
@@ -69,14 +85,34 @@ function windowResized(){
     resizeCanvas(windowWidth, windowHeight);
 }
 
+function drawBackgroundBuffer() {
+    pg.background(0, 0, 255);
+    for(satelliteDatum of satellites){
+        pg.noStroke();
+        pg.push();
+        //intersects(satelliteDatum, ray, cameraPos);
+        //console.log(intersects(satelliteDatum,ray, cameraPos))
+
+        //    console.log("no intersection!");
+        //}
+        var colour = satMap.get(satelliteDatum.INTLDES);
+        pg.fill(colour.red, colour.green, 0);
+        pg.translate(satelliteDatum.position.x, satelliteDatum.position.z, satelliteDatum.position.y); 
+        pg.sphere(1, 11, 11);
+        pg.pop();
+    }
+
+}
 function drawSatellites(){
 
-   // var cameraPos = createVector(
-   //     this._renderer._curCamera.eyeX, 
-   //     this._renderer._curCamera.eyeY, 
-   //     this._renderer._curCamera.eyeZ);
-   // var ray = getRayFromCamera(mouseX, mouseY, cameraPos)
+    //var cameraPos = createVector(
+    //    this._renderer._curCamera.eyeX, 
+    //    this._renderer._curCamera.eyeY, 
+    //    this._renderer._curCamera.eyeZ);
+    //var ray = getRayFromCamera(mouseX, mouseY, cameraPos);
 
+	//var mouseObj = getObject(mouseX, mouseY);    
+    //console.log(mouseObj);
     for(satelliteDatum of satellites){
         noStroke();
         push();
@@ -86,11 +122,11 @@ function drawSatellites(){
                 break;
             case "PAYLOAD":
                 fill(130, 177, 255);
-        } 
-        //intersects(satelliteDatum, ray, cameraPos);
-        //console.log(intersects(satelliteDatum,ray, cameraPos))
-
-        //    console.log("no intersection!");
+        }
+        //var curColour = satMap.get(satelliteDatum.INTLDES);
+        //if(mouseObj.red == curColour.red && mouseObj.green == curColour.green){
+        //   // console.log(curColour);
+        //   // console.log(mouseObj);
         //}
         
         translate(satelliteDatum.position.x, satelliteDatum.position.z, satelliteDatum.position.y); 
@@ -99,73 +135,39 @@ function drawSatellites(){
     }
 }
 
-function intersects(satelliteDatum, ray, camera){
-    // - r0: ray origin
-    // - rd: normalized ray direction
-    // - s0: sphere center
-    // - sr: sphere radius
-    // - Returns distance from r0 to first intersecion with sphere,
-    //   or -1.0 if no intersection.
-    var a = ray.dot(ray);
-    var s0_r0 = camera.sub(createVector(
-        satelliteDatum.position.x, 
-        satelliteDatum.position.z, 
-        satelliteDatum.position.y));
-    var b = 2.0 * ray.dot(s0_r0);
-    var c = s0_r0.dot(s0_r0) - 1;
-    if (b*b - 4.0*a*c < 0.0) {
-        return -1.0;
-    }
-    return (-b - Math.sqrt((b*b) - 4.0*a*c))/(2.0*a);
-}
 
-function unProject(mx, my) {
-  var glScreenX = (mx / width * 2) - 1.0;
-  var glScreenY = 1.0 - (my / height * 2);
-  var screenVec = [glScreenX, glScreenY, -0.01, 1.0]; //gl screen coords
- 
-  var comboPMat = mat4.create();
-  mat4.mul(comboPMat, pMatrix, camMatrix);
-  var invMat = mat4.create();
-  mat4.invert(invMat, comboPMat);
-  var worldVec = vec4.create();
-  vec4.transformMat4(worldVec, screenVec, invMat);
+/* This function gets the red channel of the pixel under the mouse as 
+		the index for the corresponding object. A more advanced version 
+		 could use the 4 bytes (see commented section) */
+function getObject(mx, my) {
+	if (mx > width || my > height) {
+		return 0;
+	}
+
+	var gl = pg.elt.getContext('webgl');
+	var pix = getPixels();
+
+	var index = 4 * ((gl.drawingBufferHeight-my) * gl.drawingBufferWidth + mx);
     
-  pMatrix = mat4.create(), camMatrix = mat4.create();
+    
+	return {
+        red : pix[index + 0],
+	 	green :pix[index + 1]
+    }
+	// 	pix[index + 2],
+	// 	pix[index + 3]);
+	// return cor;
 
-  return createVector(worldVec[0] / worldVec[3], worldVec[1] / worldVec[3], worldVec[2] / worldVec[3]);
-  //return createVector(worldVec[0] / worldVec[3], worldVec[1] / worldVec[3], worldVec[2] / worldVec[3]);
+	//return pix[index]; // Only returning the red channel as the object index.
 }
 
-
-function getRayFromCamera(mouseX, mouseY, camera){
-    var ptThru = unProject(mouseX, mouseY);
-
-    console.log(ptThru);
-    var rayDir = ptThru.sub(camera); //rayDir = ptThru - rayOrigin
-    rayDir.normalize();
-    //console.log(rayDir);
-
-    //var toCenterVec = createVector();
-    //toCenterVec = rayOrigin.copy().mult(-1); //toCenter is just -camera pos because center is at [0,0,0]
-    //var dParallel = createVector();
-    //dParallel = rayDir.dot(toCenterVec);
-    //
-    //var longDir = createVector();
-    //longDir = rayDir.mult(dParallel); //longDir = rayDir * distParallel
-    //ptThru = rayOrigin.copy().add(longDir); //ptThru is now on the plane going through the center of sphere
-    //var dPerp = mag(ptThru);
-    //
-    //var dSubSurf = Math.sqrt(100*100 - dPerp*dPerp);
-    //var dSurf = dParallel - dSubSurf;
-    //
-    //var ptSurf = createVector();
-    //ptSurf = rayDir.copy().mult(dSurf);
-    //ptSurf = ptSurf.copy().add(rayOrigin);
-  
- // console.log('earthscreenpt: ' + (performance.now() - start) + ' ms');
-  
-  return rayDir;
+/* This function loads the pixels of the color buffer canvas into an array 
+		called pixels and returns them. */
+function getPixels() {
+	var gl = pg.elt.getContext('webgl');
+	var pixels = new Uint8Array(gl.drawingBufferWidth * gl.drawingBufferHeight * 4);
+	gl.readPixels(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight, gl.RGBA, gl.UNSIGNED_BYTE, pixels);
+	return (pixels);
 }
 
 function start(){
