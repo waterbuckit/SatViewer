@@ -67,10 +67,10 @@ function windowResized(){
     resizeCanvas(windowWidth, windowHeight);
 }
 
-
 function drawSatellites(){
 
-    var ray = getRayFromCamera(mouseX, mouseY, this._renderer._curCamera)
+    var cameraPos = createVector(this._renderer._curCamera.eyeX, this._renderer._curCamera.eyeY, this._renderer._curCamera.eyeZ);
+    var ray = getRayFromCamera(mouseX, mouseY, cameraPos)
 
     for(satelliteDatum of satellites){
         push();
@@ -81,7 +81,12 @@ function drawSatellites(){
             case "PAYLOAD":
                 fill(130, 177, 255);
         } 
-        console.log(intersects(satelliteDatum,ray, this._renderer._curCamera));
+        //intersects(satelliteDatum, ray, cameraPos);
+        if(intersects(satelliteDatum,ray, cameraPos) != null){
+            console.log("intersects");
+        }
+        //    console.log("no intersection!");
+        //}
         
         translate(satelliteDatum.position.x, satelliteDatum.position.z, satelliteDatum.position.y); 
         sphere(1, 11, 11);
@@ -90,22 +95,22 @@ function drawSatellites(){
 }
 
 function intersects(satelliteDatum, ray, camera){
-     var cameraPos = createVector(camera.eyeX, camera.eyeY);
      var L = createVector(satelliteDatum.position.x,
          satelliteDatum.position.z,
-         satelliteDatum.position.y).sub(cameraPos);
+         satelliteDatum.position.y).sub(camera);
      var tc = L.dot(ray);
      if(tc < 0){
         return null;
      }
-     var d2 = (tc*tc) -(L * L);
+     var d2 = (tc*tc) -(L.dot(L));
      if(d2 > 1){
         return null;
      }
      var t1c = Math.sqrt(1 - (d2));
+     //console.log("t1c: " +t1c);
      var t1 = tc - t1c;
     
-     return cameraPos.add(ray).mult(t1);
+     return camera.copy().add(ray).mult(t1);
 }
 
 function unProject(mx, my) {
@@ -122,18 +127,15 @@ function unProject(mx, my) {
     
   pMatrix = mat4.create(), camMatrix = mat4.create();
 
-  
-
-  return createVector(worldVec[0] / worldVec[3], worldVec[2] / worldVec[3], worldVec[1] / worldVec[3],);
+  return createVector(worldVec[0] / worldVec[3], worldVec[1] / worldVec[3], worldVec[2] / worldVec[3]);
   //return createVector(worldVec[0] / worldVec[3], worldVec[1] / worldVec[3], worldVec[2] / worldVec[3]);
 }
 
 
 function getRayFromCamera(mouseX, mouseY, camera){
-    var rayOrigin = createVector(camera.eyeX, camera.eyeY);
     var ptThru = unProject(mouseX, mouseY);
 
-    var rayDir = ptThru.copy().sub(rayOrigin); //rayDir = ptThru - rayOrigin
+    var rayDir = ptThru.sub(camera); //rayDir = ptThru - rayOrigin
     rayDir.normalize();
 
     //var toCenterVec = createVector();
